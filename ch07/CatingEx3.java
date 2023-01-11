@@ -40,7 +40,7 @@ public class CatingEx3 {
 		ani[1] = new Fish();
 		ani[2] = new Cheetah();
 		for(int i=0; i<ani.length;i++) {
-			ani[i].move();
+			ani[i].move();//동적 바인딩: 하위 클래스의 메소드를 호출한다.
 		}
 	}
 }
