@@ -33,8 +33,7 @@ implements ItemListener{
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
-		Checkbox cb = (Checkb
-				ox)e.getSource();
+		Checkbox cb = (Checkbox)e.getSource();
 		String str = cb.getLabel() + " : " + cb.getState();
 		setTitle(str);
 	}
