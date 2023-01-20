@@ -80,5 +80,4 @@ public class MenuEx1 extends MFrame {
 	public static void main(String[] args) {
 		new MenuEx1();
 	}
-
 }
