@@ -70,11 +70,83 @@ public class MemberMgr {
 	}
 
 	// 한개의 레코드 : select -db1
+	public MemberBean select(int id) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		MemberBean bean = new MemberBean();
+		try {
+			con = pool.getConnection();
+			sql = "select * from tblMember where id = ?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, id);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				rs.getInt("id");
+				bean.setId(rs.getInt("id"));
+				bean.setName(rs.getString("name"));
+				bean.setPhone(rs.getString("phone"));
+				bean.setAddress(rs.getString("address"));
+				bean.setTeam(rs.getString("team"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+		return bean;
+	}
 
-	// 수정 : update -db2
+	// 수정 : update -db2 -> insert 유사
+	public boolean update(MemberBean bean) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		boolean flag = false;
+		try {
+			con = pool.getConnection();
+			sql = "update tblMember set name = ?, phone=?," + "address = ?, team = ? where id =?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, bean.getName());
+			pstmt.setString(2, bean.getPhone());
+			pstmt.setString(3, bean.getAddress());
+			pstmt.setString(4, bean.getTeam());
+			pstmt.setInt(5, bean.getId());
+			// insert, update, delete 실행을 하면 적용된 레코드 개수 리턴
+			int cnt = pstmt.executeUpdate();
+			if (cnt == 1)
+				flag = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt);
+		}
+		return flag;
+	}
 
 	// 삭제 : delete -db2
-
+	public boolean delete(int id) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		String sql = null;
+		boolean flag = false;
+		try {
+			con = pool.getConnection();
+			sql = "delete from tblMember where id =?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, id);
+			if(pstmt.executeUpdate()==1)
+				flag=true;
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt);
+		}
+		return flag;
+	}
+	
 	// 주소 검색(우편번호 검색): select -db1
 	public Vector<ZipcodeBean> zipcodeSearch(String area3) {
 		Connection con = null;
@@ -89,9 +161,9 @@ public class MemberMgr {
 			// like '%강남대로%'
 			pstmt.setString(1, "%" + area3 + "%");
 			rs = pstmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				ZipcodeBean bean = new ZipcodeBean();
-				//select 뒤에 가져오는 컬럼의 index
+				// select 뒤에 가져오는 컬럼의 index
 				bean.setZipcode(rs.getString(1));
 				bean.setArea1(rs.getString(2));
 				bean.setArea2(rs.getString(3));

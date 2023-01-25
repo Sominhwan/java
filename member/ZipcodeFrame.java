@@ -21,9 +21,11 @@ public class ZipcodeFrame extends MFrame implements ActionListener {
 	JPanel p1, p2;
 	MemberMgr mgr;
 	DialogBox err;
+	MemberAWT awt;
 
-	public ZipcodeFrame() {
+	public ZipcodeFrame(MemberAWT awt) {
 		super(300, 500);
+		this.awt = awt;
 		setTitle("ZipcodeFrame");
 		mgr = new MemberMgr();
 		p1 = new JPanel();
@@ -65,18 +67,19 @@ public class ZipcodeFrame extends MFrame implements ActionListener {
 				for (int i = 0; i < vlist.size(); i++) {
 					ZipcodeBean bean = vlist.get(i);
 					String str = bean.getZipcode() + " ";
-					str += bean.getArea1() + " ";
-					str += bean.getArea2() + " ";
-					str += bean.getArea3() + " ";
+					str += bean.getArea1().trim() + " ";
+					str += bean.getArea2().trim() + " ";
+					str += bean.getArea3().trim() + " ";
 					list.add(str);
 				}
 			}
-		} else if (obj == list) {
+		} else if (obj == list || obj==selectBtn) {
 			// 더블클릭하면 호출한 Frame 으로 주소 전달
+			String add = list.getSelectedItem();
+			awt.tf4.setText(add);
+			list.removeAll();// 검색된 주소 모두 삭제
+			dispose();
 		}
 	}
-
-	public static void main(String[] args) {
-		new ZipcodeFrame();
-	}
+	
 }
