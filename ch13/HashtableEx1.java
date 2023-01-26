@@ -21,6 +21,5 @@ public class HashtableEx1 {
 			String value = ht1.get(key);
 			System.out.println(key + " : " + value);
 		}
-
 	}
 }
