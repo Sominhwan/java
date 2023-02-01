@@ -1,6 +1,6 @@
 package member;
 
-public class ZipcodeBean /* 테이블명 +Bean */ {
+public class ZipcodeBean {
 	private String zipcode;
 	private String area1;
 	private String area2;

@@ -10,24 +10,24 @@ public class FileCopyEx3 {
 	public static void main(String[] args) {
 		copyFileByStream("ch14/aaa.pdf", "ch14/bbb.pdf");
 	}
-	
+
 	public static void copyFileByStream(String sourcePath, String targetPath) {
 		File source = new File(sourcePath);
 		File target = new File(targetPath);
-		if(!source.exists()) {
+		if (!source.exists()) {
 			return;
 		}
-		if(!target.getParentFile().exists()) {
+		if (!target.getParentFile().exists()) {
 			target.getAbsoluteFile().mkdirs();
-			//target.getAbsoluteFile().mkdirs();
+			// target.getAbsoluteFile().mkdirs();
 		}
-		
+
 		try {
 			InputStream is = new FileInputStream(source);
 			OutputStream os = new FileOutputStream(target);
 			int temp;
 			byte[] data = new byte[1024];
-			while((temp = is.read(data))!=-1) {
+			while ((temp = is.read(data)) != -1) {
 				os.write(data, 0, temp);
 			}
 			os.close();
@@ -36,8 +36,6 @@ public class FileCopyEx3 {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-		
+
 	}
 }
