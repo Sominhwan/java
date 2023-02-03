@@ -1,8 +1,8 @@
 package net;
 
+
 import java.awt.BorderLayout;
 import java.awt.Button;
-import java.awt.FileDialog;
 import java.awt.Panel;
 import java.awt.TextArea;
 import java.awt.TextField;
@@ -13,13 +13,14 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.URL;
 
+
+
 public class URLFrameEx1 extends MFrame implements ActionListener {
 
 	TextArea ta;
 	TextField tf;
 	Button connect;
 	Button save;
-	FileDialog saveDialog;
 	URL url;
 
 	public URLFrameEx1() {
@@ -39,35 +40,35 @@ public class URLFrameEx1 extends MFrame implements ActionListener {
 		validate();
 	}
 
-	@Override
+	@Override 
 	public void actionPerformed(ActionEvent e) {
 		Object obj = e.getSource();
-		String str = tf.getText();
-		if (obj == tf || obj == connect) {
+		if(obj==tf||obj==connect) {
 			String host = tf.getText().trim();
 			try {
-				url= new URL(host);
+				url = new URL(host);
 			} catch (Exception e2) {
-				ta.append("해당되는 호스트가 없습니다.");
+				ta.append("해당되는 호스트가 없습니다");
 			}
 			ta.setText("");
 			connectHost(url);
 			save.setEnabled(true);
-		} else if (obj == save) {
+		}else if(obj==save) {
 			createFile(url.getHost(), ta.getText());
 			save.setEnabled(false);
 			tf.setText("http://");
 			ta.setText("");
-			ta.append("저장하였습니다.");
+			ta.append("저장하였습니다");
 			tf.requestFocus();
 		}
-
 	}
-
+	
+	//독립적인 기능은 최대한 세부적으로 구현
 	public void connectHost(URL url) {
 		try {
-			BufferedReader br = new BufferedReader
-					(new InputStreamReader(url.openStream(),"UTF-8"));
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+							url.openStream(), "UTF-8"));
 			String line = "";
 			while(true) {
 				line = br.readLine();
@@ -76,9 +77,8 @@ public class URLFrameEx1 extends MFrame implements ActionListener {
 			}
 			br.close();
 		} catch (Exception e) {
-			ta.append("해당하는 호스트가 없습니다.");
+			ta.append("해당하는 호스트가 없습니다");
 		}
-	
 	}
 	
 	public void createFile(String file, String content) {
@@ -89,10 +89,21 @@ public class URLFrameEx1 extends MFrame implements ActionListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
-
+	
 	public static void main(String[] args) {
 		URLFrameEx1 ex = new URLFrameEx1();
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -24,83 +25,76 @@ import java.util.StringTokenizer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-
-
-public class ChatClient2 extends JFrame 
+public class ChatClient3 extends JFrame 
 implements ActionListener, Runnable {
 
-	JButton bt1, bt2, bt3, bt4;
-	JTextField tf1, tf2, tf3;
-	TextArea area;
-	List list;
+	JButton  listBtn, msgBtn, saveBtn,  sendBtn;
+	JTextField sendTf;
+	TextArea contentArea;
+	List chatList;
 	Socket sock;
 	BufferedReader in;
 	PrintWriter out;
-	String listTitle = "*******대화자명단*******";
+	String title = "MyChat 3.0";
+	String listTitle = "*****CHAT LIST*****";
 	boolean flag = false;
+	String id;
+	String label[] = {"MLIST", "MESSAGE","SEND","SAVE"};
+	MsgAWT3 msgAWT3;
 
-	public ChatClient2() {
-		setSize(450, 500);
+	public ChatClient3(BufferedReader in, PrintWriter out, String id) {
+		setSize(500, 500);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("MyChat v2.0");
-		JPanel p1 = new JPanel();
-		p1.add(new Label("Host", Label.RIGHT));
-		p1.add(tf1 = new JTextField("127.0.0.1", 10));
-		p1.add(new Label("Port", Label.RIGHT));
-		p1.add(tf2 = new JTextField("8002",5));
-		bt1 = new JButton("connect");
-		bt1.addActionListener(this);
-		p1.add(bt1);
-		add(BorderLayout.NORTH, p1);
-		// //////////////////////////////////////////////////////////////////////////////////////////
-		area = new TextArea("MyChat v2.0");
-		area.setBackground(Color.DARK_GRAY);
-		area.setForeground(Color.PINK);
-		area.setEditable(false);
-		add(BorderLayout.CENTER, area);
+		this.in = in;
+		this.out = out;
+		this.id = id; 
+		setTitle(title + " - " + id + "님 반갑습니다.");
+		contentArea = new TextArea();
+		contentArea.setBackground(Color.DARK_GRAY);
+		contentArea.setForeground(Color.GREEN);
+		contentArea.setEditable(false);
+		add(BorderLayout.CENTER, contentArea);
 		// /////////////////////////////////////////////////////////////////////////////////////////
-		JPanel p2 = new JPanel();
+		Panel p2 = new Panel();
 		p2.setLayout(new BorderLayout());
-		list = new List();
-		list.add(listTitle);
-		p2.add(BorderLayout.CENTER, list);
-		JPanel p3 = new JPanel();
+		chatList = new List();
+		chatList.add(listTitle);
+		p2.add(BorderLayout.CENTER, chatList);
+		Panel p3 = new Panel();
 		p3.setLayout(new GridLayout(1, 2));
-		bt2 = new JButton("Save");
-		bt2.addActionListener(this);
-		bt3 = new JButton("Message");
-		bt3.addActionListener(this);
-		p3.add(bt2);
-		p3.add(bt3);
+		listBtn = new JButton(label[0]);
+		listBtn.addActionListener(this);
+		msgBtn = new JButton(label[1]);
+		msgBtn.addActionListener(this);
+		p3.add(listBtn);
+		p3.add(msgBtn);
 		p2.add(BorderLayout.SOUTH, p3);
 		add(BorderLayout.EAST, p2);
 		// ///////////////////////////////////////////////////////////////////////////////////////////
-		JPanel p4 = new JPanel();
-		tf3 = new JTextField("", 30);
-		tf3.addActionListener(this);
-		bt4 = new JButton("send");
-		bt4.addActionListener(this);
-		p4.add(tf3);
-		p4.add(bt4);
+		Panel p4 = new Panel();
+		sendTf = new JTextField("", 30);
+		sendTf.addActionListener(this);
+		sendBtn = new JButton(label[2]);
+		sendBtn.addActionListener(this);
+		saveBtn = new JButton(label[3]);
+		saveBtn.addActionListener(this);
+		p4.add(sendTf);
+		p4.add(sendBtn);
+		p4.add(saveBtn);
 		add(BorderLayout.SOUTH, p4);
+		new Thread(this).start();
 		setVisible(true);
 		validate();
 	}
 	
 	public void run() {
 		try {
-			String host = tf1.getText().trim();
-			int port = Integer.parseInt(tf2.getText().trim());
-			connect(host, port);
-			//서버 -> 사용하실 아이디를 입력하세요
-			area.append(in.readLine());
 			while(true) {
 				String line = in.readLine();
 				if(line==null)
-					break;
+					 break;
 				else
 					routine(line);
 			}
@@ -109,101 +103,72 @@ implements ActionListener, Runnable {
 		}
 	}//--run
 	
-	public void routine(String line) {
-		int idx = line.indexOf(ChatProtocol2.MODE);
-		String cmd = line.substring(0, idx);
-		String data = line.substring(idx+1);
-		if(cmd.equals(ChatProtocol2.CHATLIST)) {
-			//data = aaa;bbb;ccc;홍길동;
-			list.removeAll();//기존에 리스트 아이템 전부 삭제
-			list.add(listTitle);
-			StringTokenizer st = new StringTokenizer(data, ";");
-			while(st.hasMoreElements()) {
-				list.add(st.nextToken());
-			}
-		}else if(cmd.equals(ChatProtocol2.CHATALL)||
-				cmd.equals(ChatProtocol2.CHAT)) {
-			area.append(data+"\n");
-		}else if(cmd.equals(ChatProtocol2.MESSAGE)) {
-			//data => ccc;오늘 머해?
-			idx = data.indexOf(';');
-			cmd = data.substring(0, idx);//ccc
-			data = data.substring(idx+1);//오늘 머해?
-			new Message("FROM:", cmd, data);
-		}
-	}//--routine
-	
 	public void actionPerformed(ActionEvent e) {
 		Object obj = e.getSource();
-		if(obj==bt1) {//connect
-			new Thread(this).start();//run메소드 호출 결과
-			bt1.setEnabled(false);
-			tf1.setEnabled(false);
-			tf2.setEnabled(false);
-			area.setText("");
-		}else if(obj==bt2) {//save
+		if(obj==saveBtn/*save*/) {
+			String content = contentArea.getText();
+			//1970년1월1일 ~현재까지 1/1000초 단위로 계산
 			long fileName = System.currentTimeMillis();
 			try {
 				FileWriter fw = new FileWriter("net/"+fileName+".txt");
-				fw.write(area.getText());
+				fw.write(content);
 				fw.close();
-				area.setText("");
-				new MDialog(this, "Save", "대화내용을 저장하였습니다");
+				contentArea.setText("");
+				new MDialog(this, "Save", "대화내용을 저장하였습니다.");
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
-		}else if(obj==bt3) {//message
-			//리스트에 현재 커서가 있는 위치값
-			int idx = list.getSelectedIndex();
-			if(idx==0||idx==-1) {
-				new MDialog(this, "알림", "아이디를 선택하세요");
+		}else if(obj==listBtn) {
+			sendMessage(ChatProtocol3.MSGLIST+
+					ChatProtocol3.MODE+id);
+		}else if(obj==msgBtn/*message*/) {
+			int i = chatList.getSelectedIndex();
+			if(i==-1||i==0) {
+				new MDialog(this, "알림", "아이디를 선택하세요.");
 			}else {
-				new Message("TO:");
+				new Message("TO");
 			}
-		}else if(obj==bt4||obj==tf3) {//send
-			String str = tf3.getText();
+		}else if(obj==sendBtn ||obj==sendTf) {
+			String str = sendTf.getText();
 			if(filterMgr(str)) {
-				new MDialog(this, "경고", "입력하신 글자는 금지어입니다");
+				new MDialog(this, "경고", "입력하신 글짜는 금지어입니다.");
 				return;
 			}
-			if(!flag)/*아이디 입력*/ {
-				sendMessage(ChatProtocol2.ID+
-						ChatProtocol2.MODE+str);
-				setTitle(getTitle()+" - " + str + "님 반갑습니다");
-				area.setText("");
-				tf3.setText("");
-				tf3.requestFocus();
-				flag = true;
-			}else {
-				int idx = list.getSelectedIndex();
-				if(idx==0||idx==-1) {
-					/*일반채팅*/
-					sendMessage(ChatProtocol2.CHATALL+
-							ChatProtocol2.MODE+str);
-				}else {
-					/*귓속말 채팅*/
-					String id = list.getSelectedItem();
-					sendMessage(ChatProtocol2.CHAT+
-							ChatProtocol2.MODE+id+";"+str);
-				}
-				tf3.setText("");
-				tf3.requestFocus();
+			int i = chatList.getSelectedIndex();
+			if(i==-1||i==0) {//전체채팅
+				sendMessage(ChatProtocol3.CHATALL+ChatProtocol3.MODE+str);
+			}else { //귓속말 채팅
+				String id = chatList.getSelectedItem();
+				sendMessage(ChatProtocol3.CHAT+ChatProtocol3.MODE+id+";"+str);
 			}
+			sendTf.setText("");
+			sendTf.requestFocus();
 		}
 	}//--actionPerformed
-	
-	public void connect(String host, int port) {
-		try {
-			sock = new Socket(host, port);
-			in = new BufferedReader(
-					new InputStreamReader(
-							sock.getInputStream()));
-			out = new PrintWriter(
-					sock.getOutputStream(),true/*auto flush*/);
-		} catch (Exception e) {
-			e.printStackTrace();
+
+	public void routine(String line) {
+		int idx = line.indexOf(ChatProtocol3.MODE);
+		String cmd = line.substring(0, idx);
+		String data = line.substring(idx+1);
+		if(cmd.equals(ChatProtocol3.CHATLIST)) {
+			chatList.removeAll();
+			chatList.add(listTitle);
+			StringTokenizer st = new StringTokenizer(data, ";");
+			while(st.hasMoreTokens()) {
+				chatList.add(st.nextToken());
+			}
+		}else if(cmd.equals(ChatProtocol3.CHAT)||
+				cmd.equals(ChatProtocol3.CHATALL)){
+			contentArea.append(data+"\n");
+		}else if(cmd.equals(ChatProtocol3.MESSAGE)){
+			idx = data.indexOf(';');
+			cmd = data.substring(0,idx);
+			data = data.substring(idx+1);
+			new Message("FROM", cmd, data);
+		}else if(cmd.equals(ChatProtocol3.MSGLIST)){
+			msgAWT3 = new MsgAWT3(this, data);
 		}
-	}//--connect
+	}//--routine
 	
 	public void sendMessage(String msg) {
 		out.println(msg);
@@ -241,7 +206,7 @@ implements ActionListener, Runnable {
 		public Message(String mode) {
 			setTitle("쪽지보내기");
 			this.mode = mode;
-			id = list.getSelectedItem();
+			id = chatList.getSelectedItem();
 			layset("");
 			validate();
 		}
@@ -268,7 +233,7 @@ implements ActionListener, Runnable {
 			add(BorderLayout.CENTER, ta);
 			ta.setText(msg);
 			Panel p2 = new Panel();
-			if (mode.equals("TO:")) {
+			if (mode.equals("TO")) {
 				p2.add(send = new Button("send"));
 				send.addActionListener(this);
 			}
@@ -282,7 +247,7 @@ implements ActionListener, Runnable {
 
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource()==send){
-				sendMessage(ChatProtocol2.MESSAGE+
+				sendMessage(ChatProtocol3.MESSAGE+
 						":"+id+";"+ ta.getText());
 			}
 			setVisible(false);
@@ -293,11 +258,11 @@ implements ActionListener, Runnable {
 	class MDialog extends Dialog implements ActionListener{
 		
 		Button ok;
-		ChatClient2 ct2;
+		ChatClient3 ct3;
 		
-		public MDialog(ChatClient2 ct2,String title, String msg) {
-			super(ct2, title, true);
-			this.ct2 = ct2;
+		public MDialog(ChatClient3 ct3,String title, String msg) {
+			super(ct3, title, true);
+			this.ct3 = ct3;
 			 //////////////////////////////////////////////////////////////////////////////////////////
 			   addWindowListener(new WindowAdapter() {
 			    public void windowClosing(WindowEvent e) {
@@ -311,6 +276,7 @@ implements ActionListener, Runnable {
 			   add(ok = new Button("확인"));
 			   ok.addActionListener(this);
 			   layset();
+			   setVisible(true);
 			   validate();
 		}
 		
@@ -318,17 +284,13 @@ implements ActionListener, Runnable {
 			int width = 200;
 			int height = 100;
 			setSize(width, height);
-			setLocationRelativeTo(ct2);
+			setLocationRelativeTo(ct3);
 			setVisible(true);
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			tf3.setText("");
+			sendTf.setText("");
 			dispose();
 		}
-	}
-	
-	public static void main(String[] args) {
-		new ChatClient2();
 	}
 }

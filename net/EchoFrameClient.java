@@ -9,9 +9,11 @@ import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 import javax.swing.JFrame;
 
@@ -24,7 +26,7 @@ implements ActionListener{
 	Panel p1, p2;
 	BufferedReader in;
 	PrintWriter out;
-	static final int PORT = 7000;
+	static final int PORT = 8000;
 	
 	public EchoFrameClient() {
 		setSize(350, 400);
@@ -55,16 +57,16 @@ implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object obj = e.getSource();
-		if(obj == tf1 || obj == btn1 /*connect*/) {
+		if(obj==tf1||obj==btn1/*connect*/) {
 			connect(tf1.getText().trim());
 			tf1.setEnabled(false);
 			btn1.setEnabled(false);
-			tf2.requestFocus();		
-		}else if(obj == tf2 || obj == btn2 /*chat*/) {
-			// tf2의 입력된 문자열을 서버로 보낸다
+			tf2.requestFocus();
+		}else if(obj==tf2||obj==btn2/*chat*/) {
+			//tf2에 입력된 문자열을 서버로 보낸다
 			out.println(tf2.getText());
 			try {
-				// 서버로 부터 문자열 전송 받음
+				//서버로 부터 문자열 전송 받음
 				ta.append(in.readLine()+"\n");
 				tf2.setText("");
 				tf2.requestFocus();
@@ -74,19 +76,18 @@ implements ActionListener{
 		}
 	}
 	
-	
 	public void connect(String host){
 		try {
-			Socket sock = new Socket(host,PORT);
-			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			out = new PrintWriter(sock.getOutputStream(), true);
-			// 서버에서 최초로 보내는 메시지 전달
-			ta.append(in.readLine() + "\n");
+			Socket sock = new Socket(host, PORT);
+			in = new BufferedReader(
+					new InputStreamReader(sock.getInputStream()));
+			out = new PrintWriter(sock.getOutputStream(),true);
+			//서버에서 최초로 보내는 메세지 전달
+			ta.append(in.readLine()+"\n");
 			tf2.requestFocus();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static void main(String[] args) {
