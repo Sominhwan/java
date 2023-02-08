@@ -1,6 +1,6 @@
 package net;
 
-public class ChatProtocol3 {
+public class ChatProtocol {
 	
 	//ID, CHAT, CHATALL, MESSAGE, CHATLIST
 	

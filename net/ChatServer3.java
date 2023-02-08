@@ -11,7 +11,7 @@ public class ChatServer3 {
 
 	Vector<ClientThread3> vc;
 	ServerSocket server;
-	int port = 8003;
+	int port = 8005;
 	ChatMgr3 mgr;
 
 	public ChatServer3() {
@@ -110,11 +110,11 @@ public class ChatServer3 {
 
 		public void routine(String line) {
 			System.out.println("line:" + line);
-			int idx = line.indexOf(ChatProtocol3.MODE);
+			int idx = line.indexOf(ChatProtocol.MODE);
 			String cmd = line.substring(0, idx); 
 			String data = line.substring(idx + 1); 
 			//ID:aaa;1234
-			if (cmd.equals(ChatProtocol3.ID)) {
+			if (cmd.equals(ChatProtocol.ID)) {
 				idx = data.indexOf(';');
 				cmd = data.substring(0, idx);//aaa		
 				data = data.substring(idx+1);//1234
@@ -123,38 +123,38 @@ public class ChatServer3 {
 					ClientThread3 ct = findClient(cmd);
 					if(ct!=null&&ct.id.equals(cmd)) {
 						//이중접속
-						sendMessage(ChatProtocol3.ID+
-								ChatProtocol3.MODE+"C");
+						sendMessage(ChatProtocol.ID+
+								ChatProtocol.MODE+"C");
 					}else {
 						id = cmd;
-						sendMessage(ChatProtocol3.ID+
-								ChatProtocol3.MODE+"T");
-						sendAllMessage(ChatProtocol3.CHATLIST+
-								ChatProtocol3.MODE+getIdList());
-						sendAllMessage(ChatProtocol3.CHATALL+
-								ChatProtocol3.MODE+"["+id+"]님이 입장하였습니다");
+						sendMessage(ChatProtocol.ID+
+								ChatProtocol.MODE+"T");
+						sendAllMessage(ChatProtocol.CHATLIST+
+								ChatProtocol.MODE+getIdList());
+						sendAllMessage(ChatProtocol.CHATALL+
+								ChatProtocol.MODE+"["+id+"]님이 입장하였습니다");
 					}
 				}else {
-					sendMessage(ChatProtocol3.ID+
-							ChatProtocol3.MODE+"F");
+					sendMessage(ChatProtocol.ID+
+							ChatProtocol.MODE+"F");
 				}
-			} else if (cmd.equals(ChatProtocol3.CHAT)) {// CHAT:bbb;밥먹자
+			} else if (cmd.equals(ChatProtocol.CHAT)) {// CHAT:bbb;밥먹자
 				idx = data.indexOf(';');
 				cmd/* bbb */ = data.substring(idx);
 				data/* 밥먹자 */ = data.substring(idx + 1);
 				// id : bbb를 가진 클라이언트를 찾아야 한다.
 				ClientThread3 ct = findClient(cmd);
 				if (ct != null) {// 상대방과 자신에게 보냄
-					ct.sendMessage(ChatProtocol3.CHAT + ChatProtocol3.MODE + "[" + id + "(S)]" + data); // bbb에게 날라가는것(상대방) , data =
+					ct.sendMessage(ChatProtocol.CHAT + ChatProtocol.MODE + "[" + id + "(S)]" + data); // bbb에게 날라가는것(상대방) , data =
 																							// 귓속말
-					sendMessage(ChatProtocol3.CHAT + ChatProtocol3.MODE + "[" + id + "(S)]" + data); // 자신(aaa)에게 날라옴(sendMessage)
+					sendMessage(ChatProtocol.CHAT + ChatProtocol.MODE + "[" + id + "(S)]" + data); // 자신(aaa)에게 날라옴(sendMessage)
 				} else {// 자신에게 보내는것 (aaa)
-					sendMessage(ChatProtocol3.CHAT + ChatProtocol3.MODE + "[" + cmd + "]님이 접속자가 아닙니다.");
+					sendMessage(ChatProtocol.CHAT + ChatProtocol.MODE + "[" + cmd + "]님이 접속자가 아닙니다.");
 				}
 
-			} else if (cmd.equals(ChatProtocol3.CHATALL)) {
-				sendAllMessage(ChatProtocol3.CHATALL + ChatProtocol3.MODE + "[" + id + "]" + data);
-			} else if (cmd.equals(ChatProtocol3.MESSAGE)) {
+			} else if (cmd.equals(ChatProtocol.CHATALL)) {
+				sendAllMessage(ChatProtocol.CHATALL + ChatProtocol.MODE + "[" + id + "]" + data);
+			} else if (cmd.equals(ChatProtocol.MESSAGE)) {
 				//MESSAGE:ccc;오늘 머해?
 				idx = data.indexOf(';');
 				cmd = data.substring(0, idx);//ccc
@@ -166,13 +166,13 @@ public class ChatServer3 {
 					bean.setTid(cmd);//bbb
 					bean.setMsg(data);//오늘 머해?
 					mgr.insertMsg(bean);
-					ct.sendMessage(ChatProtocol3.MESSAGE+
-							ChatProtocol3.MODE+id+";"+data);
+					ct.sendMessage(ChatProtocol.MESSAGE+
+							ChatProtocol.MODE+id+";"+data);
 				}else {
-					sendMessage(ChatProtocol3.CHAT+
-							ChatProtocol3.MODE+"["+cmd+"]님이 접속자가 아닙니다");
+					sendMessage(ChatProtocol.CHAT+
+							ChatProtocol.MODE+"["+cmd+"]님이 접속자가 아닙니다");
 				}
-			}else if (cmd.equals(ChatProtocol3.MSGLIST)) {
+			}else if (cmd.equals(ChatProtocol.MSGLIST)) {
 				Vector<MessageBean3> vlist = mgr.getMsgList(id);
 				String str = "";
 				//MSGLIST:aaa,bbb,밥먹자;bbb,ccc,하이;...
@@ -182,8 +182,8 @@ public class ChatServer3 {
 					str+=bean.getTid()+",";
 					str+=bean.getMsg()+";";
 				}
-				sendMessage(ChatProtocol3.MSGLIST+
-						ChatProtocol3.MODE+str);
+				sendMessage(ChatProtocol.MSGLIST+
+						ChatProtocol.MODE+str);
 			}
 		}
 

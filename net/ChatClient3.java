@@ -119,8 +119,8 @@ implements ActionListener, Runnable {
 				e2.printStackTrace();
 			}
 		}else if(obj==listBtn) {
-			sendMessage(ChatProtocol3.MSGLIST+
-					ChatProtocol3.MODE+id);
+			sendMessage(ChatProtocol.MSGLIST+
+					ChatProtocol.MODE+id);
 		}else if(obj==msgBtn/*message*/) {
 			int i = chatList.getSelectedIndex();
 			if(i==-1||i==0) {
@@ -136,10 +136,10 @@ implements ActionListener, Runnable {
 			}
 			int i = chatList.getSelectedIndex();
 			if(i==-1||i==0) {//전체채팅
-				sendMessage(ChatProtocol3.CHATALL+ChatProtocol3.MODE+str);
+				sendMessage(ChatProtocol.CHATALL+ChatProtocol.MODE+str);
 			}else { //귓속말 채팅
 				String id = chatList.getSelectedItem();
-				sendMessage(ChatProtocol3.CHAT+ChatProtocol3.MODE+id+";"+str);
+				sendMessage(ChatProtocol.CHAT+ChatProtocol.MODE+id+";"+str);
 			}
 			sendTf.setText("");
 			sendTf.requestFocus();
@@ -147,25 +147,25 @@ implements ActionListener, Runnable {
 	}//--actionPerformed
 
 	public void routine(String line) {
-		int idx = line.indexOf(ChatProtocol3.MODE);
+		int idx = line.indexOf(ChatProtocol.MODE);
 		String cmd = line.substring(0, idx);
 		String data = line.substring(idx+1);
-		if(cmd.equals(ChatProtocol3.CHATLIST)) {
+		if(cmd.equals(ChatProtocol.CHATLIST)) {
 			chatList.removeAll();
 			chatList.add(listTitle);
 			StringTokenizer st = new StringTokenizer(data, ";");
 			while(st.hasMoreTokens()) {
 				chatList.add(st.nextToken());
 			}
-		}else if(cmd.equals(ChatProtocol3.CHAT)||
-				cmd.equals(ChatProtocol3.CHATALL)){
+		}else if(cmd.equals(ChatProtocol.CHAT)||
+				cmd.equals(ChatProtocol.CHATALL)){
 			contentArea.append(data+"\n");
-		}else if(cmd.equals(ChatProtocol3.MESSAGE)){
+		}else if(cmd.equals(ChatProtocol.MESSAGE)){
 			idx = data.indexOf(';');
 			cmd = data.substring(0,idx);
 			data = data.substring(idx+1);
 			new Message("FROM", cmd, data);
-		}else if(cmd.equals(ChatProtocol3.MSGLIST)){
+		}else if(cmd.equals(ChatProtocol.MSGLIST)){
 			msgAWT3 = new MsgAWT3(this, data);
 		}
 	}//--routine
@@ -247,7 +247,7 @@ implements ActionListener, Runnable {
 
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource()==send){
-				sendMessage(ChatProtocol3.MESSAGE+
+				sendMessage(ChatProtocol.MESSAGE+
 						":"+id+";"+ ta.getText());
 			}
 			setVisible(false);
